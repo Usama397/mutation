@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Team - Mutation Testing for Python</title>
+    <style>
+    /* Global Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh; /* Ensures full height */
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #112240; /* Dark blue */
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+    }
+
+    .logo-container img {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+      margin-top: 10px;
+    }
+
+    .logo-container a {
+      font-size: 24px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: white;
+      text-decoration: none;
+    }
+
+    .logo-container a:hover {
+      color: #007bff;
+    }
+
+    nav {
+      display: flex;
+      gap: 20px;
+    }
+
+    nav a {
+      text-decoration: none;
+      font-size: 16px;
+      color: white;
+      cursor: pointer;
+      padding: 5px 10px;
+    }
+
+    nav a:hover {
+      color: #007bff;
+      background-color: rgba(0, 123, 255, 0.1);
+      border-radius: 5px;
+    }
+
+    /* Mobile Menu */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    .hamburger div {
+      width: 25px;
+      height: 3px;
+      background-color: white;
+    }
+
+    .mobile-menu {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      background-color: white;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .mobile-menu a {
+      padding: 10px;
+      text-decoration: none;
+      color: #000;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .mobile-menu a:hover {
+      color: #007bff;
+      background-color: rgba(0, 123, 255, 0.1);
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      nav {
+        display: none;
+      }
+
+      .hamburger {
+        display: flex;
+      }
+
+      .mobile-menu.show {
+        display: flex;
+      }
+    }
+
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+            color: #333; /* LinkedIn blue */
+        }
+
+        /* Supervisor Section */
+        .supervisor-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .supervisor {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 400px;
+            text-align: center;
+        }
+
+        .supervisor img {
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+
+        .supervisor h2 {
+            margin: 10px 0;
+            font-size: 1.5em;
+        }
+
+        .supervisor .role {
+            color: #0077b5; /* LinkedIn blue */
+            font-weight: bold;
+        }
+
+        .supervisor p {
+            color: #777;
+            font-size: 1em;
+            line-height: 1.5;
+        }
+
+        .supervisor .social-links a {
+            display: inline-block;
+            margin: 5px;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .supervisor .social-links a:hover {
+            color: #0077b5; /* LinkedIn blue */
+        }
+
+        /* Team Members Section */
+        .team-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .team-member {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 20px;
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+        }
+
+        .team-member img {
+            border-radius: 50%;
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+
+        .team-member h2 {
+            margin: 10px 0;
+            font-size: 1.5em;
+        }
+
+        .team-member .role {
+            color: #0077b5; /* LinkedIn blue */
+            font-weight: bold;
+        }
+
+        .team-member p {
+            color: #777;
+            font-size: 1em;
+            line-height: 1.5;
+        }
+
+        .team-member .social-links a {
+            display: inline-block;
+            margin: 5px;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .team-member .social-links a:hover {
+            color: #0077b5; /* LinkedIn blue */
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+  <header>
+    <div class="logo-container">
+      <a href="home">
+        <img src="static\imagaes\Logo.png" alt="Logo">
+      </a>
+      <a href="home">MutateAnalyzer</a>
+    </div>
+
+    <nav>
+      <a href="home">Home</a>
+    </nav>
+
+    <div class="hamburger" id="hamburger">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="home">Home</a>
+    </div>
+  </header>
+
+    <h1>Mutation Testing for Python - Project Team</h1>
+
+    <!-- Supervisor Section -->
+    <div class="supervisor-container">
+        <div class="supervisor">
+           
+            <h2>Ms.Samia</h2>
+            <p class="role">Project Supervisor</p>
+            <p>Ms.Samia is a renowned expert in software testing and quality assurance. She provides guidance and oversight for the project.</p>
+            <div class="social-links">
+                <a href="mailto:your-samiarafique@gmail.com">Email</a>
+              
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Members Section -->
+    <div class="team-container">
+        <!-- Team Member 1 -->
+        <div class="team-member">
+           
+            <h2>Hamna Ejaz</h2>
+            <p class="role">Lead Developer</p>
+            <p>Hamna is responsible for implementing the core mutation testing algorithms and ensuring the project meets its technical goals.</p>
+            <div class="social-links">
+    
+                <a href="mailto:your-hamnaejaz1011@gmail.com" target="_blank">Email</a>
+            </div>
+        </div>
+
+        <!-- Team Member 2 -->
+        <div class="team-member">
+         
+            <h2>Laiba Ishtiaq</h2>
+            <p class="role">Frontend Developer</p>
+            <p>Laiba designs and develops the user interface for the mutation testing tool, ensuring it is intuitive and user-friendly.</p>
+           <div class="social-links">
+            
+                <a href="mailto:your-laibaishtiaq31@gmail.com" target="_blank">Email</a>
+            </div>
+        </div>
+
+        <!-- Team Member 3 -->
+        <div class="team-member">
+        
+            <h2>Ansa Amjad</h2>
+            <p class="role">Testing Specialist</p>
+            <p>Ansa focuses on rigorously testing the mutation testing tool itself, detecting software weaknesses and improving code quality.</p>
+            <div class="social-links">
+    
+               <a href="mailto:your-ansaamjad805@gmail.com" target="_blank">Email</a>
+            </div> 
+        </div>
+    </div>
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+    
+        hamburger.addEventListener('click', () => {
+          mobileMenu.classList.toggle('show');
+        });
+    
+        document.querySelectorAll('.mobile-menu a').forEach(link => {
+          link.addEventListener('click', () => {
+            mobileMenu.classList.remove('show');
+          });
+        });
+      </script>
+        
+</body>
+</html>

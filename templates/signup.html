@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signup Page</title>
+  <style>
+    /* General Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    body {
+      background-color: #E7EFFC;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #112240;
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .logo-container {
+      display: flex;
+      align-items: center;
+    }
+    .logo-container img {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+      margin-top: 10px;
+    }
+    .logo-container a {
+      font-size: 24px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: white;
+      text-decoration: none;
+    }
+    nav {
+      display: flex;
+      gap: 20px;
+    }
+    nav a {
+      text-decoration: none;
+      font-size: 16px;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    nav a:hover {
+      color: #007bff;
+    }
+
+    /* Modal Styles */
+    .modal {
+      margin: auto;
+      display: flex;
+      width: 800px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      margin-top: 50px;
+      background-color: white;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .left-section {
+      background-color: #14274e;
+      color: white;
+      padding: 40px;
+      flex: 1;
+      text-align: center;
+    }
+    .left-section img {
+      max-width: 100%;
+      margin-bottom: 20px;
+    }
+    .left-section h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+    .left-section p {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .right-section {
+      background-color: white;
+      padding: 40px;
+      flex: 1;
+    }
+    .right-section h2 {
+      margin-bottom: 20px;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .modal label {
+      display: block;
+      font-size: 0.9rem;
+      color: #555;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal input {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 0.9rem;
+      box-sizing: border-box;
+    }
+
+    .modal input:focus {
+      border-color: #0066cc;
+      outline: none;
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .password-wrapper input {
+      padding-right: 2.5rem;
+    }
+
+    .password-wrapper .toggle-password {
+      position: absolute;
+      right: 0.8rem;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #555;
+      font-size: 1.2rem;
+    }
+
+    .modal button {
+      width: 100%;
+      padding: 0.8rem;
+      background: #0066cc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .modal button:hover {
+      background: #005bb5;
+    }
+
+    .error {
+      color: red;
+      font-size: 0.8rem;
+      margin-top: -0.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .signup-link {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .signup-link a {
+      text-decoration: none;
+      font-weight: bold;
+      color: #0066cc;
+    }
+
+    .signup-link a:hover {
+      text-decoration: underline;
+    }
+
+     /* Flash message styling */
+     .flash-messages {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .flash-messages .alert {
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    .flash-messages .alert-success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .flash-messages .alert-error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Navbar Section -->
+  <header>
+    <div class="logo-container">
+      <a href="home">
+        <img src="static/imagaes/Logo.png" alt="Logo">
+      </a>
+      <a href="home">MutateAnalyzer</a>
+    </div>
+    <nav>
+      <a href="home">Home</a>
+      {% if logged_in %}
+      <a href="logout">Logout</a>
+      {% else %}
+          <a href="login">Log in</a>
+      {% endif %}
+  </nav>
+  </header>
+
+  <!-- Signup Modal -->
+  <div class="modal">
+    <div class="left-section">
+      <img src="static/imagaes/lap.jpg" alt="Welcome">
+      <h1>Welcome!</h1>
+      <p>Create your account to join our platform and explore great features.</p>
+    </div>
+    <div class="right-section">
+      <h2>Sign Up</h2>
+
+      <!-- Flash messages for success/error feedback -->
+      <div class="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      </div>
+            <!-- signup form -->
+            <form id="signupForm" action="/signup" method="POST">
+              <label for="username">Username</label>
+              <input type="text" id="username" name="username" placeholder="Enter your username" required>
+              <span id="usernameError" class="error"></span>
+      
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" placeholder="name@email.com" required>
+              <span id="emailError" class="error"></span>
+      
+              <label for="password">Password</label>
+              <div class="password-wrapper">
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                <span class="toggle-password" onclick="togglePassword('password')">👁</span>
+              </div>
+              <span id="passwordError" class="error"></span>
+      
+              <label for="confirmPassword">Confirm Password</label>
+              <div class="password-wrapper">
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+                <span class="toggle-password" onclick="togglePassword('confirmPassword')">👁</span>
+        </div>
+        <span id="confirmPasswordError" class="error"></span>
+
+        <button type="submit">Sign Up</button>
+      </form>
+      <div class="signup-link">
+        <p>Already have an account? <a href="login">Login</a></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Function to toggle password visibility
+    function togglePassword(fieldId) {
+      const input = document.getElementById(fieldId);
+      input.type = input.type === "password" ? "text" : "password";
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mutation Testing Report</title>
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #112240; /* Dark blue */
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-container img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        .logo-container a {
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo-container a:hover {
+            color: #007bff;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        nav a {
+            text-decoration: none;
+            font-size: 16px;
+            color: white;
+            cursor: pointer;
+            padding: 5px 10px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            color: #007bff;
+            background-color: rgba(0, 123, 255, 0.1);
+            border-radius: 5px;
+        }
+
+        /* Mobile Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .hamburger div {
+            width: 25px;
+            height: 3px;
+            background-color: #000;
+        }
+
+        .mobile-menu {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .mobile-menu a {
+            padding: 10px;
+            text-decoration: none;
+            color: #000;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .mobile-menu a:hover {
+            color: #007bff;
+            background-color: rgba(0, 123, 255, 0.1);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            nav {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .mobile-menu.show {
+                display: flex;
+            }
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            flex: 1; /* Ensure the main content pushes the footer to the bottom */
+        }
+
+        h1, h2 {
+            text-align: center;
+        }
+
+        .report-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 5px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+
+        th {
+            background:#112240;
+            color: white;
+        }
+
+        /* Footer Styles */
+        footer {
+            background-color: #0d0d0d;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: auto; /* Push footer to the bottom */
+        }
+
+        footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <div class="logo-container">
+            <a href="home">
+                <img src="static/imagaes/Logo.png" alt="Logo">
+            </a>
+            <a href="home">MutateAnalyzer</a>
+        </div>
+
+        <nav>
+            <a href="home">Home</a>
+        </nav>
+
+        <div class="hamburger" id="hamburger">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="home">Home</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <h1>Mutation Testing Report</h1>
+        <div class="report-section">
+            <h2>Summary</h2>
+            <p><strong>Total Tests Run:</strong> {{ total_mutants }}</p>
+            <p><strong>Mutants Killed:</strong> {{ killed_mutants }}</p>
+            <p><strong>Mutation Score:</strong> {{ mutation_score }}%</p>
+        </div>
+
+        <div class="report-section">
+            <h2>Detailed Report</h2>
+            <div class="table-container">
+                <table>
+                    <tr>
+                        <th>Test ID</th>
+                        <th>Mutation Type</th>
+                        <th>Status</th>
+                        <th>Execution Time (s)</th>
+                    </tr>
+                    {% for mutant in mutants_details %}
+                    <tr>
+                        <td>{{ mutant.test_id }}</td>
+                        <td>{{ mutant.mutation_type }}</td>
+                        {% if mutant.status == 'Killed' %}
+                        <td style="color: green;">{{ mutant.status }}</td>
+                        {% else %}
+                        <td style="color: red;">{{ mutant.status }}</td>
+                        {% endif %}
+                        <td>{{ mutant.execution_time }}</td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer>
+        <p>&copy; 2025 MutateAnalyzer. <a href="privacy">Privacy Policy</a> & <a href="team">About Team</a></p>
+    </footer>
+
+    <script>
+        const hamburger = document.getElementById('hamburger');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        hamburger.addEventListener('click', () => {
+            mobileMenu.classList.toggle('show');
+        });
+    </script>
+</body>
+
+</html>

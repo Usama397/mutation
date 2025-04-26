@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Users</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #112240;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+        .logo-container img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        .logo-container a {
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: white;
+            text-decoration: none;
+        }
+        .logo-container a:hover {
+            color: #007bff;
+        }
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+        nav a {
+            text-decoration: none;
+            font-size: 16px;
+            color: white;
+            cursor: pointer;
+            padding: 5px 10px;
+            font-weight: bold;
+        }
+        nav a:hover {
+            color: #007bff;
+            background-color: rgba(0, 123, 255, 0.1);
+            border-radius: 5px;
+        }
+        .menu-icon {
+            display: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .menu {
+            display: flex;
+        }
+        .content-wrapper {
+            display: flex;
+            flex: 1;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            margin-left: 25px;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #112240;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        /* footer {
+            background-color: #0d0d0d;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+        }
+        footer a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }*/
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .menu {
+                display: none;
+                flex-direction: column;
+                width: 100%;
+                background-color: #112240;
+                position: absolute;
+                top: 50px;
+                left: 0;
+                z-index: 1001;
+                padding: 10px;
+            }
+            .menu a {
+                padding: 10px;
+                text-align: center;
+                display: block;
+                color: white;
+            }
+            .menu a:hover {
+                background-color: rgba(255, 255, 255, 0.2);
+            }
+            .menu-icon {
+                display: block;
+                color: white;
+            }
+            .menu.active {
+                display: flex;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            .table-responsive {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo-container">
+            <a href="home">
+                <img src="static\imagaes\Logo.png" alt="Logo">
+            </a>
+            <a href="home">MutateAnalyzer</a>
+        </div>
+        <div class="menu-icon" onclick="toggleMenu()">&#9776;</div>
+        <nav class="menu">
+            <a href="home">Home</a>
+            <a href="admin">Admin Panel</a>
+        </nav>
+    </header>
+
+    <div class="main-content">
+        <div class="container">
+            <h1>Manage Users</h1>
+            <div class="table-responsive">
+                <table>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Actions</th>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td>admin1</td>
+                        <td>Admin</td>
+                        <td>
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>user2</td>
+                        <td>Editor</td>
+                        <td>
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>user3</td>
+                        <td>Editor</td>
+                        <td>
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>user4</td>
+                        <td>Editor</td>
+                        <td>
+                            <button>Edit</button>
+                            <button>Delete</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+   <!-- <footer>
+        <p>&copy; 2025 MutateAnalyzer. <a href="privacy">Privacy Policy</a> & <a href="team">About Team</a></p>
+    </footer>-->
+
+    <script>
+        function toggleMenu() {
+            const menu = document.querySelector(".menu");
+            menu.classList.toggle("active");
+        }
+    </script>
+</body>
+</html>

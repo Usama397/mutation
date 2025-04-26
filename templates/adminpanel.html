@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel</title>
+  <meta name="description" content="Learn more about MutateAnalyzer and its features.">
+  <style>
+    /* Global Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background-color: white;
+    }
+
+    /* Navbar Styles */
+    header {
+      background-color: #112240;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+    }
+
+    .logo-container img {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+    }
+
+    .logo-container a {
+      font-size: 24px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: white;
+      text-decoration: none;
+    }
+
+    .menu-icon {
+      display: none;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    nav {
+      display: flex;
+      gap: 20px;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      color: #007bff;
+    }
+
+    /* Responsive Navbar */
+    @media (max-width: 768px) {
+      .menu-icon {
+        display: block;
+      }
+      nav {
+        display: none;
+        flex-direction: column;
+        background-color: #112240;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        padding: 10px;
+      }
+      nav.active {
+        display: flex;
+      }
+      nav a {
+        padding: 10px;
+        text-align: center;
+        display: block;
+      }
+    }
+
+    /* Main Content Styles */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .about-section {
+      max-width: 800px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .about-section h1 {
+      font-size: 28px;
+      color: #112240;
+      margin-bottom: 20px;
+    }
+
+    .about-section p {
+      font-size: 18px;
+      color: #555;
+      line-height: 1.8;
+    }
+
+    /* Footer Styles */
+    footer {
+      background-color: #0d0d0d;
+      color: white;
+      text-align: center;
+      padding: 15px;
+      margin-top: auto;
+    }
+
+    footer a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <header>
+    <div class="logo-container">
+      <a href="home">
+        <img src="static\imagaes\Logo.png" alt="Logo">
+      </a>
+      <a href="home">MutateAnalyzer</a>
+    </div>
+    <div class="menu-icon" onclick="toggleMenu()">&#9776;</div>
+    <nav>
+      <a href="home">Home</a>
+      <a href="user">Manage Users</a>
+      <a href="managereport">Manage Reports</a>
+      <a href="home">Logout</a>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <section class="about-section">
+      <h1>Welcome to the Admin Panel!!</h1>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <p>&copy; 2025 MutateAnalyzer. <a href="privacy">Privacy Policy</a> & <a href="team">About Team</a></p>
+  </footer>
+
+  <script>
+    function toggleMenu() {
+      const nav = document.querySelector("nav");
+      nav.classList.toggle("active");
+    }
+  </script>
+</body>
+</html>

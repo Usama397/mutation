@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MutateAnalyzer - Mutation Testing</title>
+  <meta name="description" content="MutateAnalyzer - Unlock the potential of your code with our advanced mutation testing tool.">
+  <style>
+    /* Global Styles */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+    }
+
+    /* Header and Navigation */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 20px;
+      background-color: #112240; /* Dark blue */
+      color: white;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+    }
+
+    .logo-container img {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+      margin-top: 10px;
+    }
+
+    .logo-container a {
+      font-size: 24px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: white;
+      text-decoration: none;
+    }
+
+    .logo-container a:hover {
+      color: #007bff;
+    }
+
+    nav {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    nav a {
+      text-decoration: none;
+      font-size: 16px;
+      color: white;
+      cursor: pointer;
+      padding: 5px 10px;
+    }
+
+    nav a:hover {
+      color: #007bff;
+      background-color: rgba(0, 123, 255, 0.1);
+      border-radius: 5px;
+    }
+
+    /* Profile Dropdown Styles */
+    .profile-dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .profile-link {
+      display: inline-block;
+      padding: 5px 10px;
+      color: white;
+      text-decoration: none;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      background-color: #112240;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1;
+      border-radius: 5px;
+    }
+
+    .dropdown-content a {
+      color: white;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      text-align: left;
+    }
+
+    .dropdown-content a:hover {
+      background-color: rgba(0, 123, 255, 0.1);
+      color: #007bff;
+    }
+
+    .profile-dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    /* Hamburger Menu */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    .hamburger div {
+      width: 25px;
+      height: 3px;
+      background-color: white;
+    }
+
+    /* Mobile Menu */
+    .mobile-menu {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      background-color: #112240;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+      padding: 10px 0;
+      z-index: 999;
+    }
+
+    .mobile-menu a {
+      padding: 10px 20px;
+      color: white;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .mobile-menu a:last-child {
+      border-bottom: none;
+    }
+
+    /* Hero Section */
+    .hero {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: #E7EFFC;
+      padding: 30px;
+      height: 89vh;
+    }
+
+    /* Left Content Styling */
+    .hero-content {
+      flex: 1;
+      padding: 20px;
+      max-width: 50%;
+    }
+
+    .hero-content h1 {
+      font-size: 4rem;
+      color: #212529;
+      font-weight: 900;
+      margin-bottom: 20px;
+      line-height: 1.2;
+    }
+
+    .hero-content .highlight {
+      color: #007bff;
+    }
+
+    .hero-content p {
+      font-size: 1.2rem;
+      color: #6c757d;
+      margin-bottom: 30px;
+    }
+
+    .cta-button {
+      display: inline-block;
+      padding: 12px 30px;
+      font-size: 2rem;
+      color: white;
+      background-color: #2962FF;
+      border-radius: 5px;
+      font-weight: bold;
+      text-align: center;
+      text-decoration: none;
+      transition: background-color 0.3s ease;
+    }
+
+    .cta-button:hover {
+      background-color: #0039CB;
+    }
+
+    /* Right Image Styling */
+    .hero-image {
+      flex: 1;
+      display: flex;
+      max-width: 50%;
+      height: 110%;
+    }
+
+    .hero-image img {
+      width: 110%;
+      height: 100%;
+      object-fit: cover;
+    }
+ 
+    /* Features-section */
+    .features-section {
+      text-align: center;
+      padding: 50px 20px;
+      background-color: #ffffff;
+    }
+
+    .features-section h1 {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .features-section p {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 40px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .feature-item {
+      text-align: center;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .feature-item:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .feature-item i {
+      font-size: 2rem;
+      color: #4285f4;
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+
+    .feature-item h3 {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .feature-item p {
+      font-size: 0.9rem;
+      color: #666;
+    }
+
+    /* Getting Started Section */
+    .getting-started-section {
+      text-align: center;
+      padding: 50px 20px;
+      background-color: #f9f9f9;
+    }
+
+    .getting-started-section h1 {
+      font-size: 36px;
+      margin-bottom: 40px;
+      color: #333;
+    }
+
+    .tool {
+      text-align: center;
+    }
+
+    .tool img {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+
+    .tool p {
+      font-size: 18px;
+      color: #d9534f;
+      margin: 0;
+    }
+
+    .tool p:hover {
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    /* Contact Section */
+    .contact-container {
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .contact-container h1 {
+      font-size: 36px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    input, textarea, button {
+      width: 100%;
+      padding: 15px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    /* Footer */
+    footer {
+      background-color: #0d0d0d;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    footer a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      nav {
+        display: none;
+      }
+
+      .hamburger {
+        display: flex;
+      }
+
+      .mobile-menu.show {
+        display: flex;
+      }
+
+      .hero {
+        flex-direction: column;
+        text-align: center;
+        height: auto;
+      }
+
+      .hero-content {
+        max-width: 100%;
+        padding: 40px 20px;
+      }
+
+      .hero-image {
+        max-width: 100%;
+        margin-top: 20px;
+        height: auto;
+      }
+
+      .hero-content h1 {
+        font-size: 2.5rem;
+      }
+
+      .cta-button {
+        font-size: 1.5rem;
+        padding: 10px 20px;
+      }
+
+      .features-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-content h1 {
+        font-size: 2rem;
+      }
+
+      .hero-content p {
+        font-size: 1rem;
+      }
+
+      .cta-button {
+        font-size: 1rem;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header Section -->
+  <header>
+    <div class="logo-container">
+      <a href="home#hero-section">
+        <img src="static\imagaes\Logo.png" alt="MutateAnalyzer Logo">
+      </a>
+      <a href="home#hero-section">MutateAnalyzer</a>
+    </div>
+
+    <nav>
+      <a href="home#hero-section">Home</a>
+      <a href="about">About</a>
+      <a href="home#features-section">Features</a>
+      <a href="home#contact-section">Contact</a>
+      <a href="adminlogin">Admin</a>
+      {% if logged_in %}
+          <a href="upload">Upload Code</a>
+          <div class="profile-dropdown">
+              <a href="#" class="profile-link" onclick="toggleDropdown(event)">{{ username }} ▼</a>
+              <div class="dropdown-content" id="userDropdown">
+                  <a href="logout">Logout</a>
+              </div>
+          </div>
+      {% else %}
+          <a href="login">Log in</a>
+          <a href="signup">Sign up</a>
+      {% endif %}
+    
+  </nav>
+
+    <div class="hamburger" id="hamburger">
+      <div></div>
+      <div></div>
+      <div></div>
+    </div>
+
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="home#hero-section">Home</a>
+      {% if logged_in %}
+          <a href="upload">Upload Code</a>
+          <a href="logout">Logout</a>
+      {% else %}
+          <a href="login">Log in</a>
+          <a href="signup">Sign up</a>
+      {% endif %}
+      <a href="about">About</a>  
+      <a href="home#features-section">Features</a>
+      <a href="home#contact-section">Contact</a>
+      <a href="adminlogin">Admin</a>
+  </div>
+  </header>
+
+  <!-- Main Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Improve your Python code<br><span class="highlight">with mutation testing</span></h1>
+      <p>Discover hidden weaknesses in your test suite and strengthen your code quality through advanced mutation testing techniques.</p>
+      {% if logged_in %}
+        <a href="upload" class="cta-button">Upload Code →</a>
+      {% else %}
+        <a href="login" class="cta-button">Get started →</a>
+      {% endif %}
+    </div>
+    <div class="hero-image">
+      <img src="static\imagaes\fp.avif" alt="Code Snippet">
+    </div>
+  </section>
+
+  <!-- Getting Started Section -->
+  <section class="getting-started-section" id="getting-started">
+    <h1>Getting started with MutateAnalyzer</h1>
+    <div class="tool">
+      <img src="static\imagaes\python.png" alt="Python Logo">
+      <p>python</p>
+    </div>
+  </section>
+
+  <!-- Features-section -->
+  <section class="features-section" id="features-section">
+    <h1>Features</h1>
+    <h2>Better testing through mutation</h2>
+    <p>Our platform provides comprehensive mutation testing tools to help you build more reliable Python applications.</p>
+    <div class="features-grid">
+      <div class="feature-item">
+        <i>🐞</i>
+        <h3>Mutation Detection</h3>
+        <p>Automatically identify potential bugs by introducing controlled mutations in your code.</p>
+      </div>
+      <div class="feature-item">
+        <i>⚡</i>
+        <h3>Quick Results</h3>
+        <p>Get fast feedback on your test coverage with our optimized mutation testing engine.</p>
+      </div>
+      <div class="feature-item">
+        <i>🎯</i>
+        <h3>Test Suite Analysis</h3>
+        <p>Evaluate the effectiveness of your test suite by measuring mutation survival rates.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="contact-container" id="contact-section">
+    <h1>Contact Us</h1>
+    <form action="#" method="POST">
+      <input type="text" name="name" placeholder="Your Name" required>
+      <input type="email" name="email" placeholder="Your Email" required>
+      <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
+      <button type="submit">Send Message</button>
+    </form>
+  </section>
+
+  <!-- Footer Section -->
+  <footer>
+    <p>&copy; 2025 MutateAnalyzer. <a href="privacy">Privacy Policy</a> & <a href="team">About Team</a></p>
+  </footer>
+
+  <!-- JavaScript for Navbar -->
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    hamburger.addEventListener('click', () => {
+      mobileMenu.classList.toggle('show');
+    });
+
+    document.querySelectorAll('.mobile-menu a').forEach(link => {
+      link.addEventListener('click', () => {
+        mobileMenu.classList.remove('show');
+      });
+    });
+  </script>
+</body>
+</html>
