@@ -174,7 +174,8 @@ def upload():
 
                 # ✅ Now use mut.py directly (like Colab)
                 command = [
-                    'python3', '-m', 'mutpy',
+                    'python3',
+                    '/home/ubuntu/.local/lib/python3.10/site-packages/mutpy/commandline.py',
                     '--target', target_module,
                     '--unit-test', test_module,
                     '--runner', 'unittest'
