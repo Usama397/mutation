@@ -178,8 +178,10 @@ def upload():
                     '/home/ubuntu/.local/lib/python3.10/site-packages/mutpy/commandline.py',
                     '--target', target_module,
                     '--unit-test', test_module,
-                    '--runner', 'unittest'
+                    '--runner', 'unittest',
+                    '--path', '.'  # ✅ ADD THIS LINE
                 ]
+
 
 
                 process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
