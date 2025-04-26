@@ -185,9 +185,13 @@ def upload():
                 process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 stdout, stderr = process.communicate()
 
-                result = stdout.decode('utf-8') + '\n' + stderr.decode('utf-8')
+                stdout_text = stdout.decode('utf-8')
+                stderr_text = stderr.decode('utf-8')
 
-                return result  # ✅ Directly returning mutation result
+                return f"""
+                <h3>STDOUT:</h3><pre>{stdout_text}</pre>
+                <h3>STDERR:</h3><pre>{stderr_text}</pre>
+                """
 
             except Exception as e:
                 return f'Error running mutation testing: {str(e)}', 500
