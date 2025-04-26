@@ -175,12 +175,13 @@ def upload():
                 # ✅ Now use mut.py directly (like Colab)
                 command = [
                     'python3',
-                    '/home/ubuntu/.local/lib/python3.10/site-packages/mutpy/commandline.py',
+                    '/home/ubuntu/.local/bin/mut.py',
                     '--target', target_module,
                     '--unit-test', test_module,
                     '--runner', 'unittest',
-                    '--path', '.'  # ✅ ADD THIS LINE
+                    '--path', '/home/ubuntu/mutation'
                 ]
+
 
 
 
