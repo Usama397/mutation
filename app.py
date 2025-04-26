@@ -138,50 +138,63 @@ def signup():
 @login_required
 def upload():
     if request.method == 'POST':
-        if 'file' not in request.files:
-            return 'No file part', 400
+        if 'targetFile' not in request.files or 'testFile' not in request.files:
+            return 'Both Target and Test files are required!', 400
 
-        file = request.files['file']
+        target_file = request.files['targetFile']
+        test_file = request.files['testFile']
 
-        if file.filename == '':
-            return 'No selected file', 400
+        if target_file.filename == '' or test_file.filename == '':
+            return 'No selected files!', 400
 
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(filepath)
+        if allowed_file(target_file.filename) and allowed_file(test_file.filename):
+            # Secure filenames
+            target_filename = secure_filename(target_file.filename)
+            test_filename = secure_filename(test_file.filename)
 
-            # ✅ Make uploads/ a package
+            # Save files
+            target_filepath = os.path.join(app.config['UPLOAD_FOLDER'], target_filename)
+            test_filepath = os.path.join(app.config['UPLOAD_FOLDER'], test_filename)
+
+            target_file.save(target_filepath)
+            test_file.save(test_filepath)
+
+            # ✅ Make uploads/ a package (if not already)
             init_file = os.path.join(app.config['UPLOAD_FOLDER'], '__init__.py')
             if not os.path.exists(init_file):
                 open(init_file, 'a').close()
 
             try:
-                # ✅ Build correct Python module path instead of filepath
-                relative_path = os.path.relpath(filepath, start=app.root_path)
-                module_path = relative_path.replace('/', '.').replace('\\', '.').replace('.py', '')
+                # ✅ Build correct Python module paths
+                relative_target_path = os.path.relpath(target_filepath, start=app.root_path)
+                relative_test_path = os.path.relpath(test_filepath, start=app.root_path)
 
-                # ✅ Correct MutPy command for module names
+                target_module = relative_target_path.replace('/', '.').replace('\\', '.').replace('.py', '')
+                test_module = relative_test_path.replace('/', '.').replace('\\', '.').replace('.py', '')
+
+                # ✅ Now use mut.py directly (like Colab)
                 command = [
-                    'python', '-m', 'mutpy',
-                    '--target', module_path,
-                    '--unit-test', module_path,
+                    'mut.py',
+                    '--target', target_module,
+                    '--unit-test', test_module,
                     '--runner', 'unittest'
                 ]
 
                 process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 stdout, stderr = process.communicate()
+
                 result = stdout.decode('utf-8') + '\n' + stderr.decode('utf-8')
 
-                return result  # ✅
+                return result  # ✅ Directly returning mutation result
 
             except Exception as e:
                 return f'Error running mutation testing: {str(e)}', 500
 
         else:
-            return 'Invalid file type', 400
+            return 'Invalid file types, only .py files are allowed.', 400
 
     return render_template('upload.html')
+
 
 
 
