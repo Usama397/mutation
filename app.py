@@ -139,7 +139,7 @@ def signup():
 def upload():
     if request.method == 'POST':
         if 'file' not in request.files:
-            return 'No file part', 400  # 🔥 Return error message
+            return 'No file part', 400
 
         file = request.files['file']
 
@@ -151,17 +151,21 @@ def upload():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
 
-            # Make uploads/ a package
+            # ✅ Make uploads/ a package
             init_file = os.path.join(app.config['UPLOAD_FOLDER'], '__init__.py')
             if not os.path.exists(init_file):
                 open(init_file, 'a').close()
 
             try:
-                # Use uploaded file as both target and unit-test
+                # ✅ Build correct Python module path instead of filepath
+                relative_path = os.path.relpath(filepath, start=app.root_path)
+                module_path = relative_path.replace('/', '.').replace('\\', '.').replace('.py', '')
+
+                # ✅ Correct MutPy command for module names
                 command = [
                     'python', '-m', 'mutpy',
-                    '--target', filepath,
-                    '--unit-test', filepath,
+                    '--target', module_path,
+                    '--unit-test', module_path,
                     '--runner', 'unittest'
                 ]
 
@@ -169,16 +173,16 @@ def upload():
                 stdout, stderr = process.communicate()
                 result = stdout.decode('utf-8') + '\n' + stderr.decode('utf-8')
 
-                # Instead of redirect, just RETURN the result text
-                return result  # 🔥
+                return result  # ✅
 
             except Exception as e:
-                return f'Error running mutation testing: {str(e)}', 500  # 🔥
+                return f'Error running mutation testing: {str(e)}', 500
 
         else:
             return 'Invalid file type', 400
 
     return render_template('upload.html')
+
 
 
 # Report route (Protected)
