@@ -174,11 +174,12 @@ def upload():
 
                 # ✅ Now use mut.py directly (like Colab)
                 command = [
-                    'mut.py',
+                    'python3', '-m', 'mutpy',
                     '--target', target_module,
                     '--unit-test', test_module,
                     '--runner', 'unittest'
                 ]
+
 
                 process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 stdout, stderr = process.communicate()
