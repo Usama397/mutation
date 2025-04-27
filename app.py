@@ -270,16 +270,9 @@ def upload():
                 db.session.commit()
                 # ----------------------------------------
 
-                return {
-                    'success': True,
-                    'message': 'Files uploaded and processed successfully.',
-                    'data': {
-                        'total_mutants': total_mutants,
-                        'killed_mutants': killed_mutants,
-                        'survived_mutants': survived_mutants,
-                        'mutation_score': mutation_score
-                    }
-                }, 200
+                flash('Files uploaded and processed successfully.', 'success')
+                return redirect(url_for('report'))
+
 
             except Exception as e:
                 print(f"Error occurred: {e}")
