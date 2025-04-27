@@ -133,7 +133,6 @@ def signup():
 
     return render_template('signup.html')
 
-# Upload route (Protected)
 @app.route('/upload', methods=['GET', 'POST'])
 @login_required
 def upload():
@@ -148,31 +147,33 @@ def upload():
             return 'No selected files!', 400
 
         if allowed_file(target_file.filename) and allowed_file(test_file.filename):
-            # Secure filenames
             target_filename = secure_filename(target_file.filename)
             test_filename = secure_filename(test_file.filename)
 
-            # Save files
             target_filepath = os.path.join(app.config['UPLOAD_FOLDER'], target_filename)
             test_filepath = os.path.join(app.config['UPLOAD_FOLDER'], test_filename)
 
-            target_file.save(target_filepath)
-            test_file.save(test_filepath)
-
-            # ✅ Make uploads/ a package (if not already)
-            init_file = os.path.join(app.config['UPLOAD_FOLDER'], '__init__.py')
-            if not os.path.exists(init_file):
-                open(init_file, 'a').close()
-
             try:
-                # ✅ Build correct Python module paths
+                # Ensure the upload directory exists
+                os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+                # Save uploaded files
+                target_file.save(target_filepath)
+                test_file.save(test_filepath)
+
+                # Create __init__.py if not exists
+                init_file = os.path.join(app.config['UPLOAD_FOLDER'], '__init__.py')
+                if not os.path.exists(init_file):
+                    open(init_file, 'a').close()
+
+                # Build Python module paths
                 relative_target_path = os.path.relpath(target_filepath, start=app.root_path)
                 relative_test_path = os.path.relpath(test_filepath, start=app.root_path)
 
                 target_module = relative_target_path.replace('/', '.').replace('\\', '.').replace('.py', '')
                 test_module = relative_test_path.replace('/', '.').replace('\\', '.').replace('.py', '')
 
-                # ✅ Now use mut.py directly (like Colab)
+                # Run mutation command
                 command = [
                     'python3',
                     '/home/ubuntu/.local/bin/mut.py',
@@ -182,38 +183,43 @@ def upload():
                     '--path', '/home/ubuntu/mutation'
                 ]
 
-
-
-
                 process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 stdout, stderr = process.communicate()
 
-            # Parse important information
-            import re
-            total_mutants = killed_mutants = survived_mutants = mutation_score = 0
+                result = stdout.decode('utf-8')
 
-            match_total = re.search(r'- all: (\d+)', result)
-            match_killed = re.search(r'- killed: (\d+)', result)
-            match_survived = re.search(r'- survived: (\d+)', result)
-            match_score = re.search(r'Mutation score .*?: ([\d\.]+)%', result)
+                # Parse mutation results
+                total_mutants = killed_mutants = survived_mutants = mutation_score = 0
 
-            if match_total:
-                total_mutants = int(match_total.group(1))
-            if match_killed:
-                killed_mutants = int(match_killed.group(1))
-            if match_survived:
-                survived_mutants = int(match_survived.group(1))
-            if match_score:
-                mutation_score = float(match_score.group(1))
+                match_total = re.search(r'- all: (\d+)', result)
+                match_killed = re.search(r'- killed: (\d+)', result)
+                match_survived = re.search(r'- survived: (\d+)', result)
+                match_score = re.search(r'Mutation score .*?: ([\d\.]+)%', result)
 
+                if match_total:
+                    total_mutants = int(match_total.group(1))
+                if match_killed:
+                    killed_mutants = int(match_killed.group(1))
+                if match_survived:
+                    survived_mutants = int(match_survived.group(1))
+                if match_score:
+                    mutation_score = float(match_score.group(1))
 
-            # Save to session
-            session['total_mutants'] = total_mutants
-            session['killed_mutants'] = killed_mutants
-            session['survived_mutants'] = survived_mutants
-            session['mutation_score'] = mutation_score
+                session['total_mutants'] = total_mutants
+                session['killed_mutants'] = killed_mutants
+                session['survived_mutants'] = survived_mutants
+                session['mutation_score'] = mutation_score
 
-            return {'success': True, 'message': 'Files uploaded successfully.'}, 200
+                return {'success': True, 'message': 'Files uploaded and processed successfully.'}, 200
+
+            except Exception as e:
+                print(f"Error occurred: {e}")
+                return {'success': False, 'message': f"An error occurred: {str(e)}"}, 500
+
+            finally:
+                # Optional cleanup or final actions here
+                print("Mutation processing complete.")
+
         else:
             return 'Invalid file types, only .py files are allowed.', 400
 
