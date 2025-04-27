@@ -188,17 +188,32 @@ def upload():
                 process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 stdout, stderr = process.communicate()
 
-                stdout_text = stdout.decode('utf-8')
-                stderr_text = stderr.decode('utf-8')
+            # Parse important information
+            import re
+            total_mutants = killed_mutants = survived_mutants = mutation_score = 0
 
-                return f"""
-                <h3>STDOUT:</h3><pre>{stdout_text}</pre>
-                <h3>STDERR:</h3><pre>{stderr_text}</pre>
-                """
+            match_total = re.search(r'- all: (\d+)', result)
+            match_killed = re.search(r'- killed: (\d+)', result)
+            match_survived = re.search(r'- survived: (\d+)', result)
+            match_score = re.search(r'Mutation score .*?: ([\d\.]+)%', result)
 
-            except Exception as e:
-                return f'Error running mutation testing: {str(e)}', 500
+            if match_total:
+                total_mutants = int(match_total.group(1))
+            if match_killed:
+                killed_mutants = int(match_killed.group(1))
+            if match_survived:
+                survived_mutants = int(match_survived.group(1))
+            if match_score:
+                mutation_score = float(match_score.group(1))
 
+
+            # Save to session
+            session['total_mutants'] = total_mutants
+            session['killed_mutants'] = killed_mutants
+            session['survived_mutants'] = survived_mutants
+            session['mutation_score'] = mutation_score
+
+            return {'success': True, 'message': 'Files uploaded successfully.'}, 200
         else:
             return 'Invalid file types, only .py files are allowed.', 400
 
@@ -211,48 +226,18 @@ def upload():
 @app.route('/report')
 @login_required
 def report():
-    mutation_result = session.get('mutation_result', '')
-
-    # Extract summary values from the text
-    total_mutants = 0
-    killed_mutants = 0
-    survived_mutants = 0
-    mutation_score = 0.0
-    mutants_details = []
-
-    if mutation_result:
-        # Parse final summary
-        match_total = re.search(r'- all: (\d+)', mutation_result)
-        match_killed = re.search(r'- killed: (\d+)', mutation_result)
-        match_survived = re.search(r'- survived: (\d+)', mutation_result)
-        match_score = re.search(r'Mutation score.*?: ([\d\.]+)%', mutation_result)
-
-        if match_total:
-            total_mutants = int(match_total.group(1))
-        if match_killed:
-            killed_mutants = int(match_killed.group(1))
-        if match_survived:
-            survived_mutants = int(match_survived.group(1))
-        if match_score:
-            mutation_score = float(match_score.group(1))
-
-        # Parse detailed mutants
-        mutant_lines = re.findall(r'\[#\s*(\d+)\] (.*?) \[(.*?)\] (.*?) by (.*?) ', mutation_result)
-        for line in mutant_lines:
-            mutants_details.append({
-                'test_id': line[0],
-                'mutation_type': line[1],
-                'execution_time': line[2],
-                'status': 'Killed' if 'killed' in line[3] else 'Survived',
-            })
+    total_mutants = session.get('total_mutants', 0)
+    killed_mutants = session.get('killed_mutants', 0)
+    survived_mutants = session.get('survived_mutants', 0)
+    mutation_score = session.get('mutation_score', 0.0)
 
     return render_template('report.html',
         total_mutants=total_mutants,
         killed_mutants=killed_mutants,
         survived_mutants=survived_mutants,
-        mutation_score=mutation_score,
-        mutants_details=mutants_details
+        mutation_score=mutation_score
     )
+
 
 
 # Logout route
