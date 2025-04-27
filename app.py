@@ -305,7 +305,7 @@ def report():
         killed_mutants=report.killed_mutants,
         survived_mutants=report.survived_mutants,
         mutation_score=report.mutation_score,
-        mutants_details=mutants  # pass to HTML
+        mutants_details=mutants  # ✅ send to template
     )
 
 # Logout route
