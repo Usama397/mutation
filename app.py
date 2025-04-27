@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -6,6 +7,7 @@ import os
 from functools import wraps
 import re
 import subprocess
+from flask_login import current_user
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -36,6 +38,27 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(120), nullable=False)  # Increased length for hashed passwords
+
+class MutationReport(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, nullable=False)  # Link to your user table
+    total_mutants = db.Column(db.Integer, nullable=False)
+    killed_mutants = db.Column(db.Integer, nullable=False)
+    survived_mutants = db.Column(db.Integer, nullable=False)
+    mutation_score = db.Column(db.Float, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    mutants = db.relationship('MutantDetail', backref='report', lazy=True)
+
+
+class MutantDetail(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    report_id = db.Column(db.Integer, db.ForeignKey('mutation_report.id'), nullable=False)
+
+    test_id = db.Column(db.Integer, nullable=False)
+    mutation_type = db.Column(db.String(100), nullable=False)
+    status = db.Column(db.String(20), nullable=False)  # Killed / Survived
+    execution_time = db.Column(db.Float, nullable=False)  # in seconds
+
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -154,26 +177,20 @@ def upload():
             test_filepath = os.path.join(app.config['UPLOAD_FOLDER'], test_filename)
 
             try:
-                # Ensure the upload directory exists
                 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-
-                # Save uploaded files
                 target_file.save(target_filepath)
                 test_file.save(test_filepath)
 
-                # Create __init__.py if not exists
                 init_file = os.path.join(app.config['UPLOAD_FOLDER'], '__init__.py')
                 if not os.path.exists(init_file):
                     open(init_file, 'a').close()
 
-                # Build Python module paths
                 relative_target_path = os.path.relpath(target_filepath, start=app.root_path)
                 relative_test_path = os.path.relpath(test_filepath, start=app.root_path)
 
                 target_module = relative_target_path.replace('/', '.').replace('\\', '.').replace('.py', '')
                 test_module = relative_test_path.replace('/', '.').replace('\\', '.').replace('.py', '')
 
-                # Run mutation command
                 command = [
                     'python3',
                     '/home/ubuntu/.local/bin/mut.py',
@@ -188,13 +205,13 @@ def upload():
 
                 result = stdout.decode('utf-8')
 
-                # Parse mutation results
+                # --- Parse mutation summary ---
                 total_mutants = killed_mutants = survived_mutants = mutation_score = 0
 
                 match_total = re.search(r'- all: (\d+)', result)
                 match_killed = re.search(r'- killed: (\d+)', result)
                 match_survived = re.search(r'- survived: (\d+)', result)
-                match_score = re.search(r'Mutation score .*?: ([\d\.]+)%', result)
+                match_score = re.search(r'Mutation score .*?: ([\d\\.]+)%', result)
 
                 if match_total:
                     total_mutants = int(match_total.group(1))
@@ -204,20 +221,71 @@ def upload():
                     survived_mutants = int(match_survived.group(1))
                 if match_score:
                     mutation_score = float(match_score.group(1))
+                # -------------------------------
 
-                session['total_mutants'] = total_mutants
-                session['killed_mutants'] = killed_mutants
-                session['survived_mutants'] = survived_mutants
-                session['mutation_score'] = mutation_score
+                # Save overall summary
+                report = MutationReport(
+                    user_id=session['user_id'],  # Using session login system
+                    total_mutants=total_mutants,
+                    killed_mutants=killed_mutants,
+                    survived_mutants=survived_mutants,
+                    mutation_score=mutation_score
+                )
+                db.session.add(report)
+                db.session.commit()
 
-                return {'success': True, 'message': 'Files uploaded and processed successfully.'}, 200
+                # --- Parse detailed mutants and insert ---
+                mutants_details = []
+                mutant_pattern = r'\[#\s*(\d+)\]\s+(\w+)\s+\w+: \[(\d+\.\d+) s\]\s+(\w+)'
+
+                for match in re.finditer(mutant_pattern, result):
+                    test_id = int(match.group(1))
+                    mutation_type = match.group(2)
+                    execution_time = float(match.group(3))
+                    status_raw = match.group(4)
+
+                    # Normalize status
+                    if status_raw.lower() == 'killed':
+                        status = 'Killed'
+                    else:
+                        status = 'Survived'
+
+                    mutants_details.append({
+                        "test_id": test_id,
+                        "mutation_type": mutation_type,
+                        "status": status,
+                        "execution_time": execution_time
+                    })
+
+                for mutant in mutants_details:
+                    detail = MutantDetail(
+                        report_id=report.id,
+                        test_id=mutant["test_id"],
+                        mutation_type=mutant["mutation_type"],
+                        status=mutant["status"],
+                        execution_time=mutant["execution_time"]
+                    )
+                    db.session.add(detail)
+
+                db.session.commit()
+                # ----------------------------------------
+
+                return {
+                    'success': True,
+                    'message': 'Files uploaded and processed successfully.',
+                    'data': {
+                        'total_mutants': total_mutants,
+                        'killed_mutants': killed_mutants,
+                        'survived_mutants': survived_mutants,
+                        'mutation_score': mutation_score
+                    }
+                }, 200
 
             except Exception as e:
                 print(f"Error occurred: {e}")
                 return {'success': False, 'message': f"An error occurred: {str(e)}"}, 500
 
             finally:
-                # Optional cleanup or final actions here
                 print("Mutation processing complete.")
 
         else:
@@ -228,23 +296,24 @@ def upload():
 
 
 
-# Report route (Protected)
 @app.route('/report')
 @login_required
 def report():
-    total_mutants = session.get('total_mutants', 0)
-    killed_mutants = session.get('killed_mutants', 0)
-    survived_mutants = session.get('survived_mutants', 0)
-    mutation_score = session.get('mutation_score', 0.0)
+    report = MutationReport.query.filter_by(user_id=session['user_id']).order_by(MutationReport.created_at.desc()).first()
+
+    if not report:
+        flash('No mutation report found for this user.', 'error')
+        return redirect(url_for('upload'))
+
+    mutants = MutantDetail.query.filter_by(report_id=report.id).all()
 
     return render_template('report.html',
-        total_mutants=total_mutants,
-        killed_mutants=killed_mutants,
-        survived_mutants=survived_mutants,
-        mutation_score=mutation_score
+        total_mutants=report.total_mutants,
+        killed_mutants=report.killed_mutants,
+        survived_mutants=report.survived_mutants,
+        mutation_score=report.mutation_score,
+        mutants_details=mutants  # pass to HTML
     )
-
-
 
 # Logout route
 @app.route('/logout')
